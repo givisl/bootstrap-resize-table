@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>拖拽的表格测试</title>
+
+   <script type="text/javascript" src="../jquery-1.8.3.min.js"></script>
+
+   <!-- Bootstrap core CSS -->
+   <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap.min.css"/>
+   <script type="text/javascript" src="../bootstrap/js/bootstrap.min.js"></script>
+   
+
+   <style type="text/css">
+     .demo_table{
+	   width:700px;
+       margin-left: 30px;
+	 }
+     .demo_table>thead>tr>th{
+	    text-align:center
+	 }
+	 .demo_table>thead>tr>th:nth-child(1){
+	 	width:50px;
+	 }
+	 .demo_table>tbody>tr>td:nth-child(1){
+	 	text-align:center;
+	 }
+   </style>
+   <script type="text/javascript">
+     var canMove=false;
+     var inPosition=false;
+
+      $(function(){
+	     $("th").bind("mousemove",thMouseMoveEvent);
+		 $("th").bind("mousedown",thMouseDownEvent);
+	  });
+
+	  function thMouseMoveEvent(event){
+	     var th=$(this);
+         if(th.prevAll().length<1){
+		   return;
+		 }
+
+		 var left=th.offset().left;
+		 if (event.clientX - left < 4 || (th.width() - (event.clientX - left)) < 4){
+		    th.css({ 'cursor': 'e-resize' });
+		    inPosition=true;
+		 }else{
+		 	inPosition=false;
+            th.css({ 'cursor': 'default' });
+		 }
+	  }
+
+	  function thMouseDownEvent(event){
+         
+         if(inPosition){
+         	canMove=true;
+         }else{
+         	canMove=false;
+         }
+
+		 var th=$(this);
+         if(th.prevAll().length<1){
+		   return;
+		 }
+    
+	 	
+	 	var left=th.offset().left;
+	    th.bind("mousemove",function(event){
+			if(inPosition&&canMove){
+				console.log("position:\t"+event.clientX);
+			}
+	    });  
+		
+
+		 th.bind("mouseup",function(event){
+		 	canMove=false;
+		 });
+	  }
+
+   </script>
+</head>
+<body>
+
+
+<br/>
+<br/>
+<br/>
+
+<table id="testTable" class="table table-bordered table-striped table-hover table-condensed demo_table">
+   <thead>
+     <tr>
+	   <th>Num</th>
+	   <th>City</th>
+	   <th>Mayor</th>
+	 </tr>
+   </thead>
+   <tbody>
+     <tr>
+	   <td>1</td><td>Taipei</td><td>Haolongbing</td>
+	 </tr>
+	 <tr>
+	   <td>2</td><td>New Taipei</td><td>Zhulilun</td>
+	 </tr>
+	 <tr>
+	   <td>3</td><td>Taoyuan</td><td>Wuzhiyang</td>
+	 </tr>
+	 <tr>
+	   <td>4</td><td>Taichung</td><td>Jason Hu</td>
+	 </tr>
+	 <tr>
+	   <td>5</td><td>Tainan</td><td>Laiqingde</td>
+	 </tr>
+	 <tr>
+	   <td>6</td><td>Kaohsiung</td><td>Chenchu</td>
+	 </tr>
+   </tbody>
+</table>
+    
+
+  
+  
+	
+	</body>
+</html>
