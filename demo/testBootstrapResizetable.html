@@ -14,7 +14,7 @@
 
    <style type="text/css">
      .demo_table{
-	   width:700px;
+	   /*width:700px;*/
        margin-left: 30px;
 	 }
      .demo_table>thead>tr>th{
@@ -26,58 +26,93 @@
 	 .demo_table>tbody>tr>td:nth-child(1){
 	 	text-align:center;
 	 }
+	 .resize_slider{
+	 	border-left:1px solid #0088cc;
+	 	position: absolute;
+	 	width:1px;
+	 }
    </style>
    <script type="text/javascript">
      var canMove=false;
+     var isMouseDown=false;
      var inPosition=false;
+     var colNumber=0;
 
       $(function(){
 	     $("th").bind("mousemove",thMouseMoveEvent);
 		 $("th").bind("mousedown",thMouseDownEvent);
+		 $("#test_div").bind("mouseup",thMouseUpEvent);
+
+		 //解决拖动时会选中内容的缺陷
+		 $("body").bind("selectstart", function() { return false; });
 	  });
 
 	  function thMouseMoveEvent(event){
-	     var th=$(this);
-         if(th.prevAll().length<1){
+	     var $th=$(this);
+         if($th.prevAll().length<1){
 		   return;
 		 }
 
-		 var left=th.offset().left;
-		 if (event.clientX - left < 4 || (th.width() - (event.clientX - left)) < 4){
-		    th.css({ 'cursor': 'e-resize' });
+		 var left=$th.offset().left;
+		 var newWidth=event.clientX-left;
+		 if (newWidth< 4||($th.width() - newWidth) < 4||isMouseDown){
+		 	colNumber=$(this).parent().children("th").index(this);
+		    $th.css({ 'cursor': 'e-resize' });
 		    inPosition=true;
 		 }else{
 		 	inPosition=false;
-            th.css({ 'cursor': 'default' });
+		 	canMove=false;
+            $th.css({ 'cursor': 'default' });
 		 }
+
+         if(canMove&&isMouseDown){
+         	//console.log("colNumber:\t"+colNumber);
+         	$("#test_div div").css({"left":event.clientX});
+         }
+
 	  }
 
 	  function thMouseDownEvent(event){
-         
+	  	 
          if(inPosition){
          	canMove=true;
+         	isMouseDown=true;
+         	var $table=$(this).parent().parent().parent();
+	  	 	var height=$table.height();
+	  	 	var left=event.clientX;
+	  	 	var top=$table.offset().top;
+	  	 	$("#test_div div").remove();
+         	$("#test_div").append("<div style='height:"+height+"px;left:"+left+"px;top:"+top+"px;' class='resize_slider'></div>");
          }else{
          	canMove=false;
+         	$("#test_div div").remove();
+         	isMouseDown=false;
          }
 
-		 var th=$(this);
-         if(th.prevAll().length<1){
-		   return;
-		 }
-    
-	 	
-	 	var left=th.offset().left;
-	    th.bind("mousemove",function(event){
-			if(inPosition&&canMove){
-				console.log("position:\t"+event.clientX);
-			}
-	    });  
-		
-
-		 th.bind("mouseup",function(event){
-		 	canMove=false;
-		 });
+		 
 	  }
+
+
+	  function thMouseUpEvent(event){
+	  	if(canMove&&isMouseDown){
+			var $th=$("#test_div table thead th:eq("+(colNumber-1)+")");
+			var newWidth=event.clientX-$th.offset().left;
+			//console.log("colNumber:\t"+colNumber);
+			if(newWidth>0){
+				$th.width(newWidth);
+			}else{
+                $th.width($th.width()+newWidth);
+			}
+	  		
+	  	}
+
+        canMove=false;
+	 	isMouseDown=false;
+	 	$(this).unbind("mousemove");
+	 	$("#test_div div").remove();
+	  }
+
+
 
    </script>
 </head>
@@ -88,6 +123,7 @@
 <br/>
 <br/>
 
+<div id="test_div" style="width:600px;">
 <table id="testTable" class="table table-bordered table-striped table-hover table-condensed demo_table">
    <thead>
      <tr>
@@ -117,7 +153,7 @@
 	 </tr>
    </tbody>
 </table>
-    
+    </div>
 
   
   
